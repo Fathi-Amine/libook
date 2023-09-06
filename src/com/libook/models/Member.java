@@ -1,3 +1,4 @@
+/*
 package com.libook.models;
 
 import java.util.List;
@@ -47,3 +48,4 @@ public class Member {
     public static List<Member> getAllMembers() {}
 }
 
+*/
