@@ -53,10 +53,9 @@ public class Auteur {
     public void updateAuteur(Connection connection, int serialNumber, String newName) {
         if (!authorExists(connection, serialNumber)) {
             System.out.println("No author with the provided serial number found.");
-            return; // Exit the method if the author doesn't exist
+            return;
         }
 
-        // If the author exists, proceed with the update
         String updateQuery = "UPDATE auteur SET name = ? WHERE serial_number = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
@@ -72,7 +71,6 @@ public class Auteur {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            // Handle database-related exceptions here
         }
     }
 
@@ -140,6 +138,30 @@ public class Auteur {
 
         return false;
     }
+
+    public Auteur getAuteurBySerialNumber(Connection connection, int serialNumber) {
+        String selectQuery = "SELECT * FROM auteur WHERE serial_number = ?";
+        Auteur auteur = null;
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)) {
+            preparedStatement.setInt(1, serialNumber);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                int authorSerialNumber = resultSet.getInt("serial_number");
+                String authorName = resultSet.getString("name");
+
+
+                auteur = new Auteur( authorName, authorSerialNumber);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return auteur;
+    }
+
 }
 
 

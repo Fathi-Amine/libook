@@ -2,6 +2,8 @@ package com.libook;
 import com.libook.db.DbConnection;
 import com.libook.models.Auteur;
 import com.libook.models.Book;
+import com.libook.models.Livres_empruntes;
+import com.libook.models.Member;
 
 import java.sql.*;
 import java.text.ParseException;
@@ -47,6 +49,26 @@ public class Main {
                     case 7:
                         deleteBook();
                     case 8:
+                        getAuteurBySn();
+                    case 9:
+                        searchBooks();
+                        break;
+                    case 10:
+                        showAvailableBooks();
+                        break;
+                    case 11:
+                        createMember();
+                        break;
+                    case 12:
+                        updateMember();
+                        break;
+                    case 13:
+                        deleteMember();
+                        break;
+                    case 14:
+                        borrow_book();
+                        break;
+                    case 15:
                         exitProgram();
                         break;
                     default:
@@ -66,9 +88,15 @@ public class Main {
         System.out.println("4. Delete author information");
         System.out.println("5. Add a book");
         System.out.println("6. Update a book");
-        System.out.println("7. Update a book");
-        System.out.println("8. Exit");
-        System.out.print("Enter your choice (1/2/3/4/5/6/7/8): ");
+        System.out.println("7. delete a book");
+        System.out.println("8. get an author by serial number");
+        System.out.println("9. search books");
+        System.out.println("10. Display books");
+        System.out.println("11. Create Member");
+        System.out.println("12. Update a Member");
+        System.out.println("14. Borrow");
+        System.out.println("15. Exit");
+        System.out.print("Enter your choice (1/2/3/4/5/6/7/8/9/10/11/12/13): ");
     }
     private static void printAuthorsGrid(List<Auteur> authors) {
         System.out.println("Authors:");
@@ -103,7 +131,6 @@ public class Main {
 
         Auteur author = new Auteur();
 
-        // Retrieve the list of authors from the database
         List<Auteur> authors = author.getAuteurs(connection);
 
         if (!authors.isEmpty()) {
@@ -122,8 +149,7 @@ public class Main {
 
         System.out.print("Enter the author's serial number: ");
         int serialNumber = scanner.nextInt();
-        scanner.nextLine(); // Consume the newline character
-
+        scanner.nextLine();
         System.out.print("Enter the new author's name: ");
         String newName = scanner.nextLine();
         Auteur author = new Auteur();
@@ -173,7 +199,7 @@ public class Main {
             return;
         }
 
-        Auteur auteur = new Auteur(null, authorSerialNumber); // Pass null for author name
+        Auteur auteur = new Auteur(null, authorSerialNumber);
 
         Book book = new Book();
 
@@ -225,16 +251,159 @@ public class Main {
         System.out.print("Enter ISBN of the book you want to delete: ");
         String isbnToDelete = scanner.nextLine();
 
-        // Assuming you have a connection object named 'connection'
         Book book = new Book();
         book.setIsbn(isbnToDelete);
 
-        // Call the deleteBook method to delete the book from the database
         book.deleteBook(connection);
     }
 
+    private static void getAuteurBySn(){
+        Connection connection = DbConnection.getConnection();
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the author serial number");
+        int serial_number = scanner.nextInt();
+        scanner.nextLine();
+        Auteur auteur = new Auteur();
+        auteur = auteur.getAuteurBySerialNumber(connection, serial_number);
+        if (auteur != null) {
+            System.out.println("Author Details:");
+            System.out.println("Serial Number: " + auteur.getSerialNumber());
+            System.out.println("Name: " + auteur.getName());
+            // Add more details as needed
+        } else {
+            System.out.println("Author not found for serial number: " + serial_number);
+        }
+
+    }
+
+    private static void searchBooks() {
+        Connection connection = DbConnection.getConnection();
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter search criteria (title or author name): ");
+        String searchCriteria = scanner.nextLine();
+
+        Book book = new Book();
+        List<Book> searchResults = book.searchBooks(connection, searchCriteria);
+
+        if (!searchResults.isEmpty()) {
+            System.out.println("\nSearch Results:");
+            for (Book result : searchResults) {
+                System.out.println("ISBN: " + result.getIsbn());
+                System.out.println("Title: " + result.getTitle());
+                System.out.println("Author: " + result.getAuteur().getName());
+                System.out.println("Publication Date: " + result.getDate_publication());
+                System.out.println("Quantity: " + result.getQuantité());
+                System.out.println();
+            }
+        } else {
+            System.out.println("No matching books found.");
+        }
+    }
+
+    private static void showAvailableBooks() {
+        Connection connection = DbConnection.getConnection();
+        Book book = new Book();
+
+        List<Book> availableBooks = book.displayBooks(connection);
+        if (!availableBooks.isEmpty()) {
+            System.out.println("\nAvailable Books:");
+            for (Book availableBook : availableBooks) {
+                System.out.println("ISBN: " + availableBook.getIsbn());
+                System.out.println("Title: " + availableBook.getTitle());
+                System.out.println("Author: " + availableBook.getAuteur().getName());
+                System.out.println("Publication Date: " + availableBook.getDate_publication());
+                System.out.println("Quantity: " + availableBook.getQuantité());
+                System.out.println();
+            }
+        } else {
+            System.out.println("No available books found.");
+        }
+    }
+
+    private static void createMember(){
+        Connection connection = DbConnection.getConnection();
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the Member serial number");
+        int serial_number = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println("Enter the member name");
+        String nom_membre = scanner.nextLine();
+
+        Member nouveau_membre = new Member(nom_membre, serial_number);
+
+        nouveau_membre.createMember(connection, nouveau_membre);
+        System.out.println("Database connection closed.");
+    }
+
+    private static void updateMember() {
+        Connection connection = DbConnection.getConnection();
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter the member's serial number: ");
+        int serialNumber = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Enter the new member's name: ");
+        String newName = scanner.nextLine();
+        Member member = new Member();
+        member.updateMember(connection, serialNumber, newName);
+    }
+    private static void deleteMember() {
+        Connection connection = DbConnection.getConnection();
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter the member's serial number to delete: ");
+        int serialNumber = scanner.nextInt();
+        scanner.nextLine();
+        Member member = new Member();
+
+        member.deleteMember(connection, serialNumber);
+    }
+
+    private static void borrow_book(){
+        Connection connection = DbConnection.getConnection();
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter the ISBN of the book: ");
+        String isbn = scanner.nextLine();
+
+        System.out.print("Enter the member's serial number: ");
+        int memberSerialNumber = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Enter the borrow date (yyyy-MM-dd): ");
+        String borrowDateStr = scanner.nextLine();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date borrowDate;
+        try {
+            borrowDate = dateFormat.parse(borrowDateStr);
+        } catch (ParseException e) {
+            System.out.println("Invalid date format. Please use yyyy-MM-dd.");
+            scanner.close();
+            return;
+        }
+
+
+        System.out.print("Enter the return date (yyyy-MM-dd): ");
+        String returnDateStr = scanner.nextLine();
+
+        Date returnDate;
+        try {
+            returnDate = dateFormat.parse(returnDateStr);
+        } catch (ParseException e) {
+            System.out.println("Invalid date format. Please use yyyy-MM-dd.");
+            scanner.close();
+            return;
+        }
+
+        Member member = new Member(null, memberSerialNumber);
+        Book book = new Book(isbn,null,null,0,null,0);
+
+        Livres_empruntes livre_emprunte = new Livres_empruntes(member, book, borrowDate, returnDate,Boolean.FALSE);
+        // Call the borrowBook function
+        livre_emprunte.emprunter_livre(connection,member, book, borrowDate, returnDate);
+    }
     private static void exitProgram() {
-        // Close the database connection and exit the program
         DbConnection.closeConnection();
         System.out.println("Exiting the program.");
         System.exit(0);
