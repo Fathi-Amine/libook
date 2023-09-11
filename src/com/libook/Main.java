@@ -69,6 +69,15 @@ public class Main {
                         borrow_book();
                         break;
                     case 15:
+                        returnBook();
+                        break;
+                    case 16:
+                        declareBookAsLost();
+                        break;
+                    case 17:
+                        displayStatisticsTable();
+                        break;
+                    case 18:
                         exitProgram();
                         break;
                     default:
@@ -95,8 +104,11 @@ public class Main {
         System.out.println("11. Create Member");
         System.out.println("12. Update a Member");
         System.out.println("14. Borrow");
-        System.out.println("15. Exit");
-        System.out.print("Enter your choice (1/2/3/4/5/6/7/8/9/10/11/12/13): ");
+        System.out.println("15. Return");
+        System.out.println("16. Declare a book as lost");
+        System.out.println("17. Statistics");
+        System.out.println("18. Exit");
+        System.out.print("Enter your choice (1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18): ");
     }
     private static void printAuthorsGrid(List<Auteur> authors) {
         System.out.println("Authors:");
@@ -402,6 +414,47 @@ public class Main {
         Livres_empruntes livre_emprunte = new Livres_empruntes(member, book, borrowDate, returnDate,Boolean.FALSE);
         // Call the borrowBook function
         livre_emprunte.emprunter_livre(connection,member, book, borrowDate, returnDate);
+    }
+
+    private static void returnBook() {
+        Connection connection = DbConnection.getConnection();
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Returning a book...");
+        System.out.print("Enter the ISBN of the book: ");
+        String isbn = scanner.nextLine();
+        System.out.print("Enter your member serial number: ");
+        String memberSerialNumber = scanner.nextLine();
+        Livres_empruntes livre = new Livres_empruntes();
+
+        livre.returnBook(connection, isbn, memberSerialNumber);
+    }
+
+    private static void declareBookAsLost() {
+        Connection connection = DbConnection.getConnection();
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Declaring a book as lost...");
+        System.out.print("Enter the ISBN of the lost book: ");
+        String isbn = scanner.nextLine();
+        System.out.print("Enter the member's serial number: ");
+        String memberSerialNumber = scanner.nextLine();
+        Livres_empruntes livre = new Livres_empruntes();
+        livre.declareBookAsLost(connection,isbn, memberSerialNumber);
+    }
+
+    public static void displayStatisticsTable() {
+        Livres_empruntes livres_empruntes = new Livres_empruntes();
+        Book book = new Book();
+        Member membre = new Member();
+        Connection connection = DbConnection.getConnection();
+        System.out.println("+---------------------------------------+");
+        System.out.println("|           Library Statistics           |");
+        System.out.println("+---------------------------------------+");
+        System.out.println("| Lost Books            : " + livres_empruntes.getNumberOfLostBooks(connection));
+        System.out.println("| Borrowed Books        : " + livres_empruntes.getNumberOfBorrowedBooks(connection));
+        System.out.println("| Returned Books        : " + livres_empruntes.getNumberOfReturnedBooks(connection));
+        System.out.println("| Total Books in Library: " + book.getTotalNumberOfBooks(connection));
+        System.out.println("| Members               : " + membre.getNumberOfMembers(connection));
+        System.out.println("+---------------------------------------+");
     }
     private static void exitProgram() {
         DbConnection.closeConnection();

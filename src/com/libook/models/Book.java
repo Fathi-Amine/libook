@@ -238,5 +238,40 @@ public class Book {
         }
         return 1;
     }
+
+    public int getQuantityOfBooksInLibrary(Connection connection, String isbn) {
+        try {
+            String query = "SELECT quantite_disponible FROM livre WHERE isbn = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, isbn);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getInt("quantite_disponible");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    public int getTotalNumberOfBooks(Connection connection) {
+        try {
+            String query = "SELECT SUM(quantite_disponible) FROM livre";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
 }
 

@@ -111,6 +111,23 @@ public class Member {
             e.printStackTrace();
         };
     }
+
+    public int getNumberOfMembers(Connection connection) {
+        try {
+            String query = "SELECT COUNT(*) FROM member";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
 /*
     public static List<Member> getAllMembers() {}*/
 }
